@@ -24,9 +24,17 @@ export default function App() {
     ) {
       return;
     }
+    console.log(destination)
+    console.log(source)
+    console.log(draggableId)
 
+    console.log(data.lists)
     const sourceList = data.lists[source.droppableId];
     const destinationList = data.lists[destination.droppableId];
+
+    console.log(sourceList)
+    console.log(destinationList)
+    
 
     if (sourceList === destinationList) {
       const newTaskIds = Array.from(sourceList.taskIds);
@@ -45,7 +53,7 @@ export default function App() {
           [newList.id]: newList,
         },
       };
-
+      console.log("hi1")
       setData(newData);
     } else {
       const sourceTaskIds = Array.from(sourceList.taskIds);
@@ -70,7 +78,9 @@ export default function App() {
           [newDestinationList.id]: newDestinationList,
         },
       };
-
+      console.log(newDestinationList)
+      console.log(newData)
+      console.log("hi")
       setData(newData);
     }
   }
@@ -83,11 +93,10 @@ export default function App() {
 
                     <div className="row" key={index}> 
                         {liste.map((listId) => {
-                            console.log(listId)
+                            
                             const list = data.lists[listId];
                             const tasks = list.taskIds.map((taskId) => data.tasks[taskId]);
-                            console.log(list)
-                            console.log(tasks)
+
                             return (
                             <Droppable droppableId={list.id} key={list.id}>
                                 {(provided, snapshot) => (
@@ -95,9 +104,9 @@ export default function App() {
                                     
                                     {...provided.droppableProps}
                                     ref={provided.innerRef}
-                                    className={`list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
+                                    className={`list ${snapshot.isDraggingOver ? 'dragging-over' : ''}, field`}
                                 >
-                                    <h2>{list.title}</h2>
+                                    
                                     {tasks.map((task, index) => (
                                     <Draggable draggableId={task.id} index={index} key={task.id}>
                                         {(provided, snapshot) => (
@@ -105,7 +114,7 @@ export default function App() {
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
                                             ref={provided.innerRef}
-                                            className={`task ${snapshot.isDragging ? 'dragging' : ''}`}
+                                            className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece`}
                                         >
                                             {task.content}
                                         </div>

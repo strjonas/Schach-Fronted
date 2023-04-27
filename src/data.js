@@ -120,7 +120,7 @@ export const initialData = {
     'c1': {
         id: 'c1',
         title: 'c1',
-        taskIds: ['b1'],
+        taskIds: ['b2'],
     },
     'c2': {
         id: 'c2',
@@ -156,7 +156,7 @@ export const initialData = {
     'c8': {
         id: 'c8',
         title: 'c8',
-        taskIds: ['B1'],
+        taskIds: ['B2'],
     },
     'd1': {
         id: 'd1',
