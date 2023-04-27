@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { initialData } from '../data';
-// styling
 import '../styles/App.css';
-
-
-
 
 
 export default function App() {
   const [data, setData] = useState(initialData);
 
   const onDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
+    const { destination, source } = result;
 
     if (!destination) {
       return;
@@ -27,51 +23,32 @@ export default function App() {
     const sourceList = data.lists[source.droppableId];
     const destinationList = data.lists[destination.droppableId];
     
+    const sourcePiece = sourceList.taskIds;
+    const destinationPiece = destinationList.taskIds;
 
-    if (sourceList === destinationList) {
-      const newTaskIds = Array.from(sourceList.taskIds);
-      newTaskIds.splice(source.index, 1);
-      newTaskIds.splice(destination.index, 0, draggableId);
+    // field is occupied    
+    if (destinationPiece.length > 0) return
 
-      const newList = {
-        ...sourceList,
-        taskIds: newTaskIds,
-      };
+    // check if piece that is moved is actually a piece
+    if (sourcePiece.length === 0) return
 
-      const newData = {
-        ...data,
-        lists: {
-          ...data.lists,
-          [newList.id]: newList,
-        },
-      };
-      console.log("hi1")
-      setData(newData);
-    } else {
-      const sourceTaskIds = Array.from(sourceList.taskIds);
-      sourceTaskIds.splice(source.index, 1);
-      const newSourceList = {
-        ...sourceList,
-        taskIds: sourceTaskIds,
-      };
 
-      const destinationTaskIds = Array.from(destinationList.taskIds);
-      destinationTaskIds.splice(destination.index, 0, draggableId);
-      const newDestinationList = {
-        ...destinationList,
-        taskIds: destinationTaskIds,
-      };
+    // move the peace to the destination
+    sourceList.taskIds = '';
+    destinationList.taskIds = sourcePiece
       
-      const newData = {
+    // hier wurde vorher geschaut ob sourceList === destinationList, ich weiss net warum, falls was nicht klappt, mal checken
+
+    const newData = {
         ...data,
         lists: {
-          ...data.lists,
-          [newSourceList.id]: newSourceList,
-          [newDestinationList.id]: newDestinationList,
+            ...data.lists,
+            [sourceList.id]: sourceList,
+            [destinationList.id]: destinationList,
         },
-      };
-      setData(newData);
-    }
+    };
+    setData(newData);
+    
   }
   
   return (
@@ -81,39 +58,47 @@ export default function App() {
                 return (
 
                     <div className="row" key={index}> 
-                        {liste.map((listId) => {
+                        {liste.map((listId, index) => {
                             
                             const list = data.lists[listId];
-                            const tasks = list.taskIds.map((taskId) => data.tasks[taskId]);
-                            
+
+                            const task = data.tasks[list.taskIds]
+
                             return (
-                            <Droppable droppableId={list.id} key={list.id}>
-                                {(provided, snapshot) => (
-                                <div
-                                    
-                                    {...provided.droppableProps}
-                                    ref={provided.innerRef}
-                                    className={`list ${snapshot.isDraggingOver ? 'dragging-over' : ''}, field`}
-                                >
-                                    
-                                    {tasks.map((task, index) => (
-                                    <Draggable draggableId={task.id} index={index} key={task.id}>
-                                        {(provided, snapshot) => (
-                                        <div
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            ref={provided.innerRef}
-                                            className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
-                                        >
-                                            {task.content}
-                                        </div>
-                                        )}
-                                    </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                                )}
-                            </Droppable>
+                                <Droppable droppableId={list.id} key={list.id}>
+                                    {(provided, snapshot) => (
+                                    <div
+                                        
+                                        {...provided.droppableProps}
+                                        ref={provided.innerRef}
+                                        className={`list ${snapshot.isDraggingOver ? 'dragging-over' : ''}, field`}
+                                    >
+                                        
+                                    {  
+                                        task !== undefined ?
+                                        (
+                                        <Draggable draggableId={task.id} index={index} key={task.id}>
+                                            {(provided, snapshot) => (
+                                            <div
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                                className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
+                                            >
+                                                <img src={require(`./../images/pieces/${task.id.slice(0, 1).toLowerCase()}_${task.color}.png`)} alt="piece" />
+                                            </div>
+                                            )}
+                                        </Draggable>
+                                        )
+                                        :
+                                        (
+                                            <div  className="piece, dummy"></div>
+                                        )
+                                    }
+                                        {provided.placeholder}
+                                    </div>
+                                    )}
+                                </Droppable>
                             );
                         })}
                     </div>
