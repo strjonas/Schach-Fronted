@@ -24,16 +24,8 @@ export default function App() {
     ) {
       return;
     }
-    console.log(destination)
-    console.log(source)
-    console.log(draggableId)
-
-    console.log(data.lists)
     const sourceList = data.lists[source.droppableId];
     const destinationList = data.lists[destination.droppableId];
-
-    console.log(sourceList)
-    console.log(destinationList)
     
 
     if (sourceList === destinationList) {
@@ -69,7 +61,7 @@ export default function App() {
         ...destinationList,
         taskIds: destinationTaskIds,
       };
-
+      
       const newData = {
         ...data,
         lists: {
@@ -78,9 +70,6 @@ export default function App() {
           [newDestinationList.id]: newDestinationList,
         },
       };
-      console.log(newDestinationList)
-      console.log(newData)
-      console.log("hi")
       setData(newData);
     }
   }
@@ -96,7 +85,7 @@ export default function App() {
                             
                             const list = data.lists[listId];
                             const tasks = list.taskIds.map((taskId) => data.tasks[taskId]);
-
+                            
                             return (
                             <Droppable droppableId={list.id} key={list.id}>
                                 {(provided, snapshot) => (
@@ -114,7 +103,7 @@ export default function App() {
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
                                             ref={provided.innerRef}
-                                            className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece`}
+                                            className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
                                         >
                                             {task.content}
                                         </div>
