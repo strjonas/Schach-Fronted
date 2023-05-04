@@ -7,6 +7,10 @@ import '../styles/App.css';
 export default function App() {
   const [data, setData] = useState(initialData);
 
+  function isLowerCase(str)
+    {
+        return str === str.toLowerCase() && str !== str.toUpperCase();
+    }
 
   const dataToArray = (data) => {
     let array = []
@@ -56,14 +60,22 @@ export default function App() {
     if (sourcePiece.length === 0) return
 
 
-    console.log(dataToArray(data))
-    
-
 
     // TODO zugvalidierung
 
-    // field is occupied    
-    if (destinationPiece.length > 0) return
+    // field is occupied
+    
+
+    // check if same or different color
+    if (isLowerCase(sourcePiece.slice(0, 1)) === isLowerCase(destinationPiece.slice(0, 1)))  {
+        // same color
+        if (destinationPiece.length > 0) return
+    }
+    else{
+        // different color
+        // piece will be captured
+    }
+    
 
 
 
