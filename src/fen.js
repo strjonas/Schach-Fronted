@@ -2,7 +2,8 @@ import {dataToArray} from "./functions.js";
 import {initialData} from "./data.js";
 
 let board = dataToArray(initialData)
-let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+let fen = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1"
+
 function boardToFen(board) {
     let result = "";
     for(let y = 0; y < board.length; y++)
@@ -10,8 +11,8 @@ function boardToFen(board) {
         let empty = 0;
         for(let x = 0; x < board[y].length; x++)
         {
-            let c = board[y][x][0];
-            if(c != undefined) {        //nicht schön aber geht
+            let c = board[y][x];
+            if(c != undefined || c != null) {        //nicht schön aber geht
                 if(empty > 0)
                 {
                     result += empty.toString();
@@ -31,7 +32,21 @@ function boardToFen(board) {
             result += '/';
         }
     }
-    result += ' w KQkq - 0 1';
+    result += ' w'
+
+    if (board[7][7][0] == 'R' && board[7][6] == null && board[7][5] == null && board[7][4][0] == 'K'){
+        result += ' K'
+    } else if (board[7][0][0] == 'R' && board[7][1] == null && board[7][2] == null && board[7][3] == null && board[7][4][0] == 'K'){
+        result += ' Q'
+    } else if (board[7][7][0] == 'R' && board[7][6] == null && board[7][5] == null && board[7][4] == null && board[7][3][0] == 'K'){
+        result += ' K'
+    } else if (board[0][7][0] == 'r' && board[0][6] == null && board[0][5] == null && board[0][4][0] == 'k'){
+        result += ' k'
+    } else if (board[0][0][0] == 'R' && board[0][1] == null && board[0][2] == null && board[0][3] == null && board[0][4][0] == 'K'){
+        result += ' q'
+    } else result += ' -'
+
+    result += ' - 0 1';
     return result;
 }
 
@@ -63,6 +78,7 @@ function fenToArray(fen) {
 }
 
 //console.log(board);
-
-console.log(boardToFen(board));
-console.log(fenToBoard(fen));
+let a = fenToBoard(fen)
+console.log(a);
+console.log(boardToFen(a));
+//console.log(fenToBoard(fen));
