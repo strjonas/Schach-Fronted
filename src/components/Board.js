@@ -10,41 +10,51 @@ export default function App() {
   const onDragEnd = (result) => {
     const { destination, source } = result;
 
-    if (!destination) {
-      return;
-    }
+    // Basic checks
+    if (!destination) return;
+    
 
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
-    ) {
-      return;
-    }
-    const sourceList = data.lists[source.droppableId];
-    const destinationList = data.lists[destination.droppableId];
-    
-    const sourcePiece = sourceList.taskIds;
-    const destinationPiece = destinationList.taskIds;
+    ) return;
 
-    // field is occupied    
-    if (destinationPiece.length > 0) return
+    let sourcePiece = data.lists[source.droppableId];
+    let destinationPiece = data.lists[destination.droppableId];
 
     // check if piece that is moved is actually a piece
     if (sourcePiece.length === 0) return
 
 
-    // move the peace to the destination
-    sourceList.taskIds = '';
-    destinationList.taskIds = sourcePiece
+
+
+
+
+    // TODO zugvalidierung
+
+    // field is occupied    
+    if (destinationPiece.length > 0) return
+
+
+
+
+    // TODO
+
+
+
+    
+
       
     // hier wurde vorher geschaut ob sourceList === destinationList, ich weiss net warum, falls was nicht klappt, mal checken
 
+    
+    // Daten Setzen
     const newData = {
         ...data,
         lists: {
             ...data.lists,
-            [sourceList.id]: sourceList,
-            [destinationList.id]: destinationList,
+            [source.droppableId]: '',
+            [destination.droppableId]: sourcePiece,
         },
     };
     setData(newData);
@@ -62,10 +72,10 @@ export default function App() {
                             
                             const list = data.lists[listId];
 
-                            const task = data.tasks[list.taskIds]
+                            const task = data.tasks[list]
 
                             return (
-                                <Droppable droppableId={list.id} key={list.id}>
+                                <Droppable droppableId={listId} key={listId}>
                                     {(provided, snapshot) => (
                                     <div
                                         
