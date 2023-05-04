@@ -3,12 +3,38 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { initialData } from '../data';
 import '../styles/App.css';
 
-import { arrayToData, dataToArray } from '../functions';
 
 export default function App() {
   const [data, setData] = useState(initialData);
 
 
+  const dataToArray = (data) => {
+    let array = []
+    for (let i = 0; i < 8; i++) {
+        array.push([])
+        for (let j = 0; j < 8; j++) {
+            array[i].push(data.lists[data.listOrder[i][j]])
+        }
+    }
+    return array
+    }
+
+    const arrayToData = (array) => {
+        let newData = {
+            ...data,
+            lists: {
+                ...data.lists,
+            },
+        };
+        for (let i = 0; i < 8; i++) {
+
+            for (let j = 0; j < 8; j++) {
+                newData.lists[newData.listOrder[i][j]] = array[i][j]
+            }
+        }
+        return newData
+    }
+    
 
 
   const onDragEnd = (result) => {
@@ -30,7 +56,7 @@ export default function App() {
     if (sourcePiece.length === 0) return
 
 
-    console.log(arrayToData(dataToArray(data), data))
+    console.log(dataToArray(data))
     
 
 
