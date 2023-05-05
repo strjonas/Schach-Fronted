@@ -1,4 +1,4 @@
-import {charadeRight, dataToArray} from "./functions.js";
+import {dataToArray} from "./functions.js";
 import {initialData} from "./data.js";
 
 let board = dataToArray(initialData)
@@ -13,8 +13,7 @@ function boardToFen(board) {
         {
             let c = board[y][x];
             if(c != undefined || c != null) {        //nicht schön aber geht
-                if(empty > 0)
-                {
+                if(empty > 0) {
                     result += empty.toString();
                     empty = 0;
                 }
@@ -23,23 +22,41 @@ function boardToFen(board) {
                 empty += 1;
             }
         }
-        if(empty > 0)
-        {
+        if(empty > 0) {
             result += empty.toString();
         }
-        if(y < board.length - 1)  // Added to eliminate last '/'
-        {
+        if(y < board.length - 1) {   //um letztes / weg zu machen
             result += '/';
         }
     }
-    result += ' w '
-
-    result += charadeRight(board)  //append KQkq if neccessary charade right to fen
-
-    result += ' - 0 1';
+    result += ' w ' //hier fehlt logik für welcher spieler dran ist
+    result += charadeRightFen(board)  //append KQkq if neccessary charade right to fen
+    result += ' -' //Logik en passant
+    result += ' 0' //Logik Spielzüge ohne Bauerbewegt oder figur geschlagen
+    result += ' 1'; //Logik gespielte Spielzüge
     return result;
 }
+function charadeRightFen(board){
+    let y = 0 //var for counting how many fields are occupied
+    let result = ''
+    if (board[7][7][0] == 'R' && board[7][6] == null && board[7][5] == null && board[7][4][0] == 'K'){
+        result += 'K'
+    } else y++
+    if (board[7][0][0] == 'R' && board[7][1] == null && board[7][2] == null && board[7][3] == null && board[7][4][0] == 'K'){
+        result += 'Q'
+    } else y++
+    if (board[0][7][0] == 'r' && board[0][6] == null && board[0][5] == null && board[0][4][0] == 'k'){
+        result += 'k'
+    } else y++
+    if (board[0][0][0] == 'r' && board[0][1] == null && board[0][2] == null && board[0][3] == null && board[0][4][0] == 'k'){
+        result += 'q'
+    } else y++
 
+    if (y == 4){
+        result += '-'
+    }
+    return result
+}
 function fenToBoard(fen){
     let fenArray = fenToArray(fen);
     let board = dataToArray(initialData);
@@ -54,7 +71,6 @@ function fenToBoard(fen){
     }
     return board
 }
-
 function fenToArray(fen) {
     const fenString = fen.split(' ')[0].replace(/\//g, '');
     const fenArrayNums = fenString.split('');
