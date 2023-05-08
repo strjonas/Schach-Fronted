@@ -179,6 +179,8 @@ export default function App() {
                 return false
         }
 
+        // if in check, check if move removes check
+
     }
 
     const setNewData = (source, destination, sourcePiece) => {
