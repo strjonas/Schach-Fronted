@@ -1,3 +1,4 @@
+
 import {initialData} from "./data.js";
 
 export function dataToArray(data){
