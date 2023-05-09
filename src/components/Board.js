@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { initialData } from '../data';
+import { initialData } from '../data.js';
 import '../styles/App.css';
 
 
@@ -115,6 +115,7 @@ export default function App() {
             }
         }
 
+
         // check if rook is moved vertically
         if (Math.abs(source.index - destination.index) % 8 !== 0 && Math.abs(source.index - destination.index) < 8) {
             // check if rook is blocked by another piece
@@ -130,6 +131,7 @@ export default function App() {
         }
     }
 
+
     const knightMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
         // either x is 2 and y is 1 or x is 1 and y is 2
         return true;
@@ -137,6 +139,7 @@ export default function App() {
 
     const bishopMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
         return true;
+
 
     }
     const queenMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
@@ -147,6 +150,7 @@ export default function App() {
         return true;
 
     }
+
 
 
 
@@ -279,4 +283,6 @@ export default function App() {
     </DragDropContext>
   );
 }
+
+
 

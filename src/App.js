@@ -1,7 +1,7 @@
 
 import './styles/App.css';
 
-import Board from './components/Board';
+import Board from './components/Board.js';
 
 import * as React from 'react';
 
