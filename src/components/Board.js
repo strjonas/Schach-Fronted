@@ -7,6 +7,7 @@ import '../styles/App.css';
 
 export default function App() {
     const [board, setBoard] = useState(initialData);
+    const [nextBoard, setNextBoard] = useState(initialData);
     const [turn, setTurn] = useState('w')
     const [rochade, setRochade] = useState([true, true, true, true]) // [whiteLeft, whiteRight, blackLeft, blackRight
     const [enPassant, setEnPassant] = useState('')
@@ -144,13 +145,221 @@ export default function App() {
 
     }
     const kingMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
+        if(isKingInCheck(nextBoard)) return false;
+        if (destination.droppableId === 'e8' && source.droppableId === 'h8' && rochade[0]) {
+            if (board.lists['f1'].length !== 0 || board.lists['g1'].length !== 0) return false;
+            return true;
+        }
+        if (destination.droppableId === 'e8' && source.droppableId === 'a8' && rochade[1]) {
+            if (board.lists['b1'].length !== 0 || board.lists['c1'].length !== 0 || board.lists['d1'].length !== 0) return false;
+
+            return true;
+
+        }
+
+        let move = source.droppableId + destination.droppableId
+
+        if (move in getLegalMoves(sourcePiece, dataToArray(board))) {
+            return true;	
+        }
+
+        console.log(dataToArray(board))
         return true;
 
     }
 
-    const isKingInCheck = (board, field) => {
-        return true;
+    const isKingInCheck = (board) => {
+        let field = dataToArray(board)
+        let king = field.find((element) => element.piece === 'K')
+        let kingIndex = field.indexOf(king)
+        let kingField = field[kingIndex].field
+        let kingColor = king.pieceColor
+        let enemyColor = kingColor === 'w' ? 'b' : 'w'
+        let enemyPieces = field.filter((element) => element.pieceColor === enemyColor)
+        let enemyMoves = []
+        enemyPieces.forEach((element) => {
+            enemyMoves.push(getLegalMoves(element, field))
+        })
+        enemyMoves = enemyMoves.flat()
+        return enemyMoves.includes(kingField)
     }
+
+    const getLegalMoves = (piece, field) => {
+        let legalMoves = []
+        switch (piece.piece) {
+            case 'P':
+                legalMoves = getPawnMoves(piece, field)
+                break;
+            case 'R':
+                legalMoves = getRookMoves(piece, field)
+                break;
+            case 'N':
+                legalMoves = getKnightMoves(piece, field)
+                break;
+            case 'B':
+                legalMoves = getBishopMoves(piece, field)
+                break;
+            case 'Q':
+                legalMoves = getQueenMoves(piece, field)
+                break;
+            case 'K':
+                legalMoves = getKingMoves(piece, field)
+                break;
+            default:
+                break;
+
+        }
+        return legalMoves
+    }
+
+    const getPawnMoves = (piece, field) => {
+        let legalMoves = []
+        let index = field.indexOf(piece)
+        let color = piece.pieceColor
+        let direction = color === 'w' ? 1 : -1
+        let pawnMoves = [index + 8 * direction, index + 16 * direction, index + 7 * direction, index + 9 * direction]
+        pawnMoves.forEach((element) => {
+            if (element >= 0 && element <= 63) {
+
+                if (field[element].piece === '') {
+                    legalMoves.push(field[element].field)
+                }
+            }
+        })
+        return legalMoves
+    }
+
+    const getRookMoves = (piece, field) => {
+        let legalMoves = []
+        let index = field.indexOf(piece)
+        let color = piece.pieceColor
+        let directions = [1, -1, 8, -8]
+        directions.forEach((direction) => {
+            let i = index + direction
+            while (i >= 0 && i <= 63) {
+
+                if (field[i].piece === '') {
+                    legalMoves.push(field[i].field)
+                } else if (field[i].pieceColor !== color) {
+                    legalMoves.push(field[i].field)
+                    break
+                } else {
+                    break
+                }
+                i += direction
+            }
+
+        })
+        return legalMoves
+    }
+
+    const getKnightMoves = (piece, field) => {
+        let legalMoves = []
+        let index = field.indexOf(piece)
+        let color = piece.pieceColor
+        let directions = [6, 10, 15, 17, -6, -10, -15, -17]
+        directions.forEach((direction) => {
+            let i = index + direction
+            if (i >= 0 && i <= 63) {
+                if (field[i].piece === '' || field[i].pieceColor !== color) {
+                    legalMoves.push(field[i].field)
+                }
+            }
+        })
+        return legalMoves
+    }
+
+    const getBishopMoves = (piece, field) => {
+        let legalMoves = []
+        let index = field.indexOf(piece)
+
+        let color = piece.pieceColor
+        let directions = [7, 9, -7, -9]
+        directions.forEach((direction) => {
+            let i = index + direction
+            while (i >= 0 && i <= 63) {
+
+                if (field[i].piece === '') {
+                    legalMoves.push(field[i].field)
+                } else if (field[i].pieceColor !== color) {
+                    legalMoves.push(field[i].field)
+                    break
+                } else {
+                    break
+                }
+                i += direction
+            }
+
+        })
+        return legalMoves
+    }
+
+    const getQueenMoves = (piece, field) => {
+
+        let legalMoves = []
+        let index = field.indexOf(piece)
+        let color = piece.pieceColor
+        let directions = [1, -1, 8, -8, 7, 9, -7, -9]
+
+        directions.forEach((direction) => {
+            let i = index + direction
+            while (i >= 0 && i <= 63) {
+
+                if (field[i].piece === '') {
+                    legalMoves.push(field[i].field)
+                } else if (field[i].pieceColor !== color) {
+                    legalMoves.push(field[i].field)
+                    break
+                } else {
+                    break
+                }
+                i += direction
+            }
+
+        })
+        return legalMoves
+    }
+
+    const getKingMoves = (piece, field) => {
+        let legalMoves = []
+        let index = field.indexOf(piece)
+        let color = piece.pieceColor
+
+        let directions = [1, -1, 8, -8, 7, 9, -7, -9]
+        directions.forEach((direction) => {
+            let i = index + direction
+            if (i >= 0 && i <= 63) {
+                if (field[i].piece === '' || field[i].pieceColor !== color) {
+
+                    legalMoves.push(field[i].field)
+                }
+            }
+        })
+        return legalMoves
+    }
+
+
+    const isCheckMate = (kingColor, field) => {
+        let kingField = field.find((element) => element.piece === 'K' && element.pieceColor === kingColor).field
+        let enemyPieces = field.filter((element) => element.pieceColor !== kingColor && element.piece !== '')
+
+        let enemyMoves = enemyPieces.map((element) => {
+            return getLegalMoves(element, field)
+        })
+
+
+        let kingMoves = getLegalMoves(field.find((element) => element.piece === 'K' && element.pieceColor === kingColor), field)
+
+        let checkMate = true
+        kingMoves.forEach((element) => {
+            if (!enemyMoves.includes(element)) {
+                checkMate = false
+            }
+        })
+        return checkMate
+    }
+
+
 
     // promotion
     const isPromotion = (source, destination, sourcePiece, destinationPiece) => {
@@ -158,9 +367,9 @@ export default function App() {
     }
 
     const moveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-        let chessPiece = source.droppableId.slice(0, 1);
+        let chessPiece = sourcePiece.slice(0, 1);
         console.log(source, destination, sourcePiece, destinationPiece)
-        return true;
+   
         // check if it was the players turn
         if (isLowerCase(chessPiece) && turn === 'w') return false;
         if (!isLowerCase(chessPiece) && turn === 'b') return false;
@@ -193,8 +402,8 @@ export default function App() {
 
     }
 
-    const setNewData = (source, destination, sourcePiece) => {
-        const newData = {
+    const returnNewData = (source, destination, sourcePiece) => {
+        return {
         ...board,
         lists: {
             ...board.lists,
@@ -202,7 +411,8 @@ export default function App() {
             [destination.droppableId]: sourcePiece,
         },
     };
-    setBoard(newData);
+     
+    
     }
 
     const sendMoveToServer = (move) => {
@@ -214,17 +424,18 @@ export default function App() {
 
     let sourcePiece = board.lists[source.droppableId];
     let destinationPiece = board.lists[destination.droppableId];
-
+    const newData = returnNewData(source, destination, sourcePiece);
+    setNextBoard(newData);
         
     // Basic checks
-    if (!checkBasics(source, destination, sourcePiece)) return;
+    if (!checkBasics(source, destination, sourcePiece, destinationPiece)) return;
 
     // check if move is legal
-    if (!moveIsLegal(source, destination)) return;
+    if (!moveIsLegal(source, destination, sourcePiece, destinationPiece)) return;
    
 
     // set new data
-    setNewData(source, destination, sourcePiece);
+    setBoard(newData);
 
     // send move to server in chess notation i.e. e2e4
     let move = source.droppableId + destination.droppableId	
@@ -240,7 +451,7 @@ export default function App() {
             {board.listOrder.map((liste, index) => {
                 return (
 
-                    <div className="row" key={index}> 
+                    <div className="row" key={liste[index]}> 
                         {liste.map((listId, index) => {
                             
                             const list = board.lists[listId];
