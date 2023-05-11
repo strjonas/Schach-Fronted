@@ -9,15 +9,15 @@ function boardToFen(board) {
     for(let y = 0; y < board.length; y++)
     {
         let empty = 0;
-        for(let x = 0; x < board[y].length; x++)
+        for(const element of board[y])
         {
-            let c = board[y][x];
-            if(c != '') {
+            let c = element;
+            if(c !== '') {
                 if(empty > 0) {
                     result += empty.toString();
                     empty = 0;
                 }
-                result += board[y][x][0];
+                result += element[0];
             } else {
                 empty += 1;
             }
@@ -35,11 +35,11 @@ function fenToBoard(fen) {
     let fenArray = fenToArray(fen);
     let board = dataToArray(initialData);
     let i = 0;
-    for(let y = 0; y < board.length; y++)
+    for(const element of board)
     {
-        for(let x = 0; x < board[y].length; x++)
+        for(let x = 0; x < element.length; x++)
         {
-            board[y][x] = fenArray[i]
+            element[x] = fenArray[i]
             i++
         }
     }
@@ -62,7 +62,7 @@ function evaluateFen(fen){
         board: fenToBoard(array[0]),
         player: array[1],
         charade: evaluateCharade(array[2]),
-        enPassent: array[3],
+        enPassant: array[3],
         halfmove: array[4],
         fullmove: array[5]
     }

@@ -7,7 +7,7 @@ import '../styles/App.css';
 
 export default function App() {
     const [board, setBoard] = useState(initialData);
-    const [turn, setTurn] = useState('white')
+    const [turn, setTurn] = useState('w')
     const [rochade, setRochade] = useState([true, true, true, true]) // [whiteLeft, whiteRight, blackLeft, blackRight
     const [enPassant, setEnPassant] = useState('')
 
@@ -15,7 +15,7 @@ export default function App() {
     const [check, setCheck] = useState(null)
     const [checkMate, setCheckMate] = useState(null)
     const [staleMate, setStaleMate] = useState(null)
-    const [history, setHistory] = useState([])
+    const [moveHistory, setMoveHistory] = useState([])
 
 
   function isLowerCase(str)
@@ -56,7 +56,7 @@ export default function App() {
     function onReceiveFenFromServer(fenstring){
         let obj = evaluateFen(fenstring)
         setBoard(arrayToData(obj.board, board))
-        setTurn(obj.turn)
+        setTurn(obj.player)
         setRochade(obj.rochade)
         setEnPassant(obj.enPassant)
     }
@@ -115,7 +115,6 @@ export default function App() {
             }
         }
 
-
         // check if rook is moved vertically
         if (Math.abs(source.index - destination.index) % 8 !== 0 && Math.abs(source.index - destination.index) < 8) {
             // check if rook is blocked by another piece
@@ -131,7 +130,6 @@ export default function App() {
         }
     }
 
-
     const knightMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
         // either x is 2 and y is 1 or x is 1 and y is 2
         return true;
@@ -139,7 +137,6 @@ export default function App() {
 
     const bishopMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
         return true;
-
 
     }
     const queenMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
@@ -151,15 +148,22 @@ export default function App() {
 
     }
 
+    const isKingInCheck = (board, field) => {
+        return true;
+    }
 
-
+    // promotion
+    const isPromotion = (source, destination, sourcePiece, destinationPiece) => {
+        return true;
+    }
 
     const moveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
         let chessPiece = source.droppableId.slice(0, 1);
-
+        console.log(source, destination, sourcePiece, destinationPiece)
+        return true;
         // check if it was the players turn
-        if (isLowerCase(chessPiece) && turn === 'white') return false;
-        if (!isLowerCase(chessPiece) && turn === 'black') return false;
+        if (isLowerCase(chessPiece) && turn === 'w') return false;
+        if (!isLowerCase(chessPiece) && turn === 'b') return false;
 
         // check if field was occupied by own piece
         if (destinationPiece.length !== 0) {
@@ -184,6 +188,8 @@ export default function App() {
         }
 
         // if in check, check if move removes check
+      
+
 
     }
 
@@ -223,6 +229,8 @@ export default function App() {
     // send move to server in chess notation i.e. e2e4
     let move = source.droppableId + destination.droppableId	
     sendMoveToServer(move);
+    // update move history
+    setMoveHistory([...moveHistory, move]);
         
   }
   
@@ -283,6 +291,4 @@ export default function App() {
     </DragDropContext>
   );
 }
-
-
 
