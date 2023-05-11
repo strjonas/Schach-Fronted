@@ -25,15 +25,16 @@ export default function App() {
     }
 
   const dataToArray = (data) => {
-    let array = []
-    for (let i = 0; i < 8; i++) {
-        array.push([])
-        for (let j = 0; j < 8; j++) {
-            array[i].push(data.lists[data.listOrder[i][j]])
-        }
-    }
+    let array = [[], [], [], [], [], [], [], []]
+    let rows = "12345678".split("").reverse()
+    let columns = "abcdefgh".split("")
+    rows.forEach(element => {
+        columns.forEach(element2 => {
+            array[Number(element)-1].push(data.lists[element2 + element])
+        });
+    });
     return array
-    }
+}
 
     const arrayToData = (array, data) => {
         let newData = {
@@ -42,12 +43,16 @@ export default function App() {
                 ...data.lists,
             },
         };
-        for (let i = 0; i < 8; i++) {
+        let rows = "12345678".split("").reverse()
+        let columns = "abcdefgh".split("")
+        rows.forEach(element => {
+            columns.forEach(element2 => {
+                console.log(array[Number(element)][columns.indexOf(element2)], element2 + element)
+                newData.lists[element2 + element] = array[Number(element)][columns.indexOf(element2)]
+            });
 
-            for (let j = 0; j < 8; j++) {
-                newData.lists[newData.listOrder[i][j]] = array[i][j]
-            }
-        }
+        });
+
         return newData
     }
 
@@ -74,65 +79,19 @@ export default function App() {
     }
 
     const pawnMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-        // check if pawn is moved two fields
-        if (Math.abs(source.index - destination.index) === 16) {
-            // check if pawn is moved two fields but is not on starting position
-            if (source.index > 15 && source.index < 48) return false;
-            // check if pawn is moved two fields but is blocked by another piece
-            if (destinationPiece.length !== 0) return false;
-            // check if pawn is moved two fields but is blocked by another piece
-            if (board.lists[destination.droppableId.slice(0, 1) + (destination.index + 8).toString()].length !== 0) return false;
-        }
-
-        // check if pawn is moved one field
-        if (Math.abs(source.index - destination.index) === 8) {
-            // check if pawn is moved one field but is blocked by another piece
-            if (destinationPiece.length !== 0) return false;
-        }
-
-        // check if pawn is moved diagonally
-        if (Math.abs(source.index - destination.index) === 7 || Math.abs(source.index - destination.index) === 9) {
-            // false if field is empty and its not en passant
-            if (destinationPiece.length === 0 && enPassant !== destination.droppableId) return false;
-        }
-
+        return true;
     }
 
     const rookMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-        // check if rook is moved diagonally
-        if (Math.abs(source.index - destination.index) % 8 !== 0 && Math.abs(source.index - destination.index) > 7) return false;
-        // check if rook is moved horizontally
-        if (Math.abs(source.index - destination.index) % 8 === 0 && Math.abs(source.index - destination.index) > 7) {
-            // check if rook is blocked by another piece
-            if (source.index < destination.index) {
-                for (let i = source.index + 8; i < destination.index; i += 8) {
-                    if (board.lists[destination.droppableId.slice(0, 1) + i.toString()].length !== 0) return false;
-                }
-            } else {
+        return true;
 
-                for (let i = source.index - 8; i > destination.index; i -= 8) {
-                    if (board.lists[destination.droppableId.slice(0, 1) + i.toString()].length !== 0) return false;
-                }
-            }
-        }
 
-        // check if rook is moved vertically
-        if (Math.abs(source.index - destination.index) % 8 !== 0 && Math.abs(source.index - destination.index) < 8) {
-            // check if rook is blocked by another piece
-            if (source.index < destination.index) {
-                for (let i = source.index + 1; i < destination.index; i++) {
-                    if (board.lists[destination.droppableId.slice(0, 1) + i.toString()].length !== 0) return false;
-                }
-            } else {
-                for (let i = source.index - 1; i > destination.index; i--) {
-                    if (board.lists[destination.droppableId.slice(0, 1) + i.toString()].length !== 0) return false;
-                }
-            }
-        }
+
+
     }
 
     const knightMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-        // either x is 2 and y is 1 or x is 1 and y is 2
+    
         return true;
     }
 
@@ -145,7 +104,7 @@ export default function App() {
 
     }
     const kingMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-        if(isKingInCheck(nextBoard)) return false;
+        if(isKingInCheck(nextBoard, (isLowerCase(sourcePiece.slice(0, 1)) ? 'b' : 'w'))) return false;
         if (destination.droppableId === 'e8' && source.droppableId === 'h8' && rochade[0]) {
             if (board.lists['f1'].length !== 0 || board.lists['g1'].length !== 0) return false;
             return true;
@@ -156,37 +115,56 @@ export default function App() {
             return true;
 
         }
-
-        let move = source.droppableId + destination.droppableId
-
-        if (move in getLegalMoves(sourcePiece, dataToArray(board))) {
-            return true;	
-        }
-
-        console.log(dataToArray(board))
         return true;
 
     }
 
-    const isKingInCheck = (board) => {
-        let field = dataToArray(board)
-        let king = field.find((element) => element.piece === 'K')
-        let kingIndex = field.indexOf(king)
-        let kingField = field[kingIndex].field
-        let kingColor = king.pieceColor
-        let enemyColor = kingColor === 'w' ? 'b' : 'w'
+    const isKingInCheck = (board, color) => {
+        // field is an array of 8 arrays, the inner arrays are the rows of the board, they contain a string with the piece or empty string
+        let fieldOrg = dataToArray(board)
+
+        // bring field in the right format
+        let fieldFull = []
+
+        fieldOrg.forEach((element) => {
+            element.forEach((element2) => {
+                fieldFull.push(element2)
+            })
+        })
+        
+        let field = fieldFull.map((element, index) => {
+            if (element.length === 0) return {
+                field: index,
+                piece: '',
+                pieceColor: ''
+            }
+            return {
+                field: index,
+                piece: element.slice(0, 1),
+                pieceColor: isLowerCase(element.slice(0, 1)) ? 'b' : 'w'
+            }
+        })
+
+
+        let king = field.find((element) => element.piece === (color === 'w'? 'K' : 'k'))
+
+        console.log(king)
+        let enemyColor = color === 'w' ? 'b' : 'w'
         let enemyPieces = field.filter((element) => element.pieceColor === enemyColor)
         let enemyMoves = []
         enemyPieces.forEach((element) => {
+            if (element.piece.length === 0) return
             enemyMoves.push(getLegalMoves(element, field))
         })
-        enemyMoves = enemyMoves.flat()
-        return enemyMoves.includes(kingField)
+
+        enemyMoves = [...enemyMoves[0], ...enemyMoves[1], ...enemyMoves[2], ...enemyMoves[3], ...enemyMoves[4], ...enemyMoves[5], ...enemyMoves[6], ...enemyMoves[7]]
+
+        return enemyMoves.includes(king.field)
     }
 
     const getLegalMoves = (piece, field) => {
         let legalMoves = []
-        switch (piece.piece) {
+        switch (piece.piece.toUpperCase()) {
             case 'P':
                 legalMoves = getPawnMoves(piece, field)
                 break;
@@ -218,6 +196,7 @@ export default function App() {
         let color = piece.pieceColor
         let direction = color === 'w' ? 1 : -1
         let pawnMoves = [index + 8 * direction, index + 16 * direction, index + 7 * direction, index + 9 * direction]
+       
         pawnMoves.forEach((element) => {
             if (element >= 0 && element <= 63) {
 
@@ -266,6 +245,7 @@ export default function App() {
                 }
             }
         })
+        //console.log( "knight moves: " + legalMoves)
         return legalMoves
     }
 
@@ -433,7 +413,6 @@ export default function App() {
     // check if move is legal
     if (!moveIsLegal(source, destination, sourcePiece, destinationPiece)) return;
    
-
     // set new data
     setBoard(newData);
 
