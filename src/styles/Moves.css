@@ -1,0 +1,14 @@
+#moveList{
+    font-family: Bahnschrift;
+    background-color: green;
+    height: 30rem;
+    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: auto;
+}
+
+.moves{
+    padding: 0.6rem;
+    border: 1px solid darkgreen;
+}

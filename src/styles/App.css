@@ -2,6 +2,11 @@
   text-align: center;
 }
 
+.content{
+  display: flex;
+  flex-direction: row;
+  margin: 2% 7% 7% 14%;
+}
 
 .App-header {
   background-color: #282c34;
@@ -23,8 +28,6 @@
   height: 90px;
   align-items: center;
   border: black 1px solid;
- 
-
 }
 
 .black{
@@ -62,5 +65,4 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
 }

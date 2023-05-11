@@ -1,0 +1,13 @@
+.header{
+    display: flex;
+    flex-direction: row;
+    margin-top: 2%;
+    height: auto;
+    width: 100%;
+    justify-content: center;
+}
+
+.logo{
+    text-align: center;
+    user-select: none;
+}
