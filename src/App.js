@@ -3,21 +3,22 @@ import './styles/App.css';
 
 import Board from './components/Board.js';
 import Moves from './components/Moves.js';
-import Header from './components/Header.js'
+import Header from './components/Header.js';
+import PlayerName from './components/PlayerName.js';
 import * as React from 'react';
 
 function App() {
 
-
-  return (
+    return (
       <div className="App">
           <Header />
           <div className="content">
+              <PlayerName />
               <Board />
               <Moves />
           </div>
       </div>
-  );
+    );
 }
 
 export default App;

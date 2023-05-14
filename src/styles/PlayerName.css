@@ -1,0 +1,17 @@
+.nameBlock{
+    display: flex;
+    flex-direction: column;
+    margin-right: 2rem;
+    text-align: end;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-size: large;
+    font-weight: bold;
+}
+
+.nameField01{
+    margin-bottom: auto;
+}
+
+.nameField02{
+    margin-top: auto;
+}
