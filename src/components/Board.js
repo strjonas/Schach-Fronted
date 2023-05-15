@@ -56,6 +56,32 @@ export default function App() {
         return newData
     }
 
+    const boardToField = (board) => {
+        let fieldOrg = dataToArray(board)
+       
+        // bring field in the right format
+        let fieldFull = []
+
+        fieldOrg.forEach((element) => {
+            element.forEach((element2) => {
+                fieldFull.push(element2)
+            })
+        })
+        let field = fieldFull.map((element, index) => {
+            if (element.length === 0) return {
+                field: index,
+                piece: '',
+                pieceColor: ''
+            }
+            return {
+                field: index,
+                piece: element,
+                pieceColor: isLowerCase(element.slice(0, 1)) ? 'b' : 'w'
+            }
+        })
+        return field
+    }
+
     // implementiert elias noch
     const evaluateFen = (fenstring) => {}
     
@@ -83,10 +109,7 @@ export default function App() {
     }
 
     const rookMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-        return true;
-
-
-
+        return true
 
     }
 
@@ -106,13 +129,10 @@ export default function App() {
     const kingMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
         if(isKingInCheck(nextBoard, (isLowerCase(sourcePiece.slice(0, 1)) ? 'b' : 'w'))) return false;
         if (destination.droppableId === 'e8' && source.droppableId === 'h8' && rochade[0]) {
-            if (board.lists['f1'].length !== 0 || board.lists['g1'].length !== 0) return false;
-            return true;
+            return !(board.lists['f1'].length !== 0 || board.lists['g1'].length !== 0);
         }
         if (destination.droppableId === 'e8' && source.droppableId === 'a8' && rochade[1]) {
-            if (board.lists['b1'].length !== 0 || board.lists['c1'].length !== 0 || board.lists['d1'].length !== 0) return false;
-
-            return true;
+            return !(board.lists['b1'].length !== 0 || board.lists['c1'].length !== 0 || board.lists['d1'].length !== 0);
 
         }
         return true;
@@ -121,34 +141,9 @@ export default function App() {
 
     const isKingInCheck = (board, color) => {
         // field is an array of 8 arrays, the inner arrays are the rows of the board, they contain a string with the piece or empty string
-        let fieldOrg = dataToArray(board)
-
-        // bring field in the right format
-        let fieldFull = []
-
-        fieldOrg.forEach((element) => {
-            element.forEach((element2) => {
-                fieldFull.push(element2)
-            })
-        })
-        
-        let field = fieldFull.map((element, index) => {
-            if (element.length === 0) return {
-                field: index,
-                piece: '',
-                pieceColor: ''
-            }
-            return {
-                field: index,
-                piece: element.slice(0, 1),
-                pieceColor: isLowerCase(element.slice(0, 1)) ? 'b' : 'w'
-            }
-        })
-
-
+        let field = boardToField(board)
         let king = field.find((element) => element.piece === (color === 'w'? 'K' : 'k'))
 
-        console.log(king)
         let enemyColor = color === 'w' ? 'b' : 'w'
         let enemyPieces = field.filter((element) => element.pieceColor === enemyColor)
         let enemyMoves = []
@@ -164,7 +159,7 @@ export default function App() {
 
     const getLegalMoves = (piece, field) => {
         let legalMoves = []
-        switch (piece.piece.toUpperCase()) {
+        switch (piece.slice(0, 1).toUpperCase()) {
             case 'P':
                 legalMoves = getPawnMoves(piece, field)
                 break;
@@ -192,6 +187,7 @@ export default function App() {
 
     const getPawnMoves = (piece, field) => {
         let legalMoves = []
+        console.log(piece, field)
         let index = field.indexOf(piece)
         let color = piece.pieceColor
         let direction = color === 'w' ? 1 : -1
@@ -210,7 +206,15 @@ export default function App() {
 
     const getRookMoves = (piece, field) => {
         let legalMoves = []
-        let index = field.indexOf(piece)
+        let index = ""
+        // find index
+        field.forEach((field) => {
+            if(field.piece === piece) {
+                index = field.field
+            }
+        })
+
+
         let color = piece.pieceColor
         let directions = [1, -1, 8, -8]
         directions.forEach((direction) => {
@@ -234,7 +238,15 @@ export default function App() {
 
     const getKnightMoves = (piece, field) => {
         let legalMoves = []
-        let index = field.indexOf(piece)
+        let index = ""
+        // find index
+        field.forEach((field) => {
+            if(field.piece === piece) {
+                index = field.field
+            }
+        })
+
+
         let color = piece.pieceColor
         let directions = [6, 10, 15, 17, -6, -10, -15, -17]
         directions.forEach((direction) => {
@@ -251,8 +263,17 @@ export default function App() {
 
     const getBishopMoves = (piece, field) => {
         let legalMoves = []
-        let index = field.indexOf(piece)
+        let index = ""
+        // find index
+        field.forEach((field) => {
+            if(field.piece === piece) {
+                index = field.field
+            }
+        })
 
+
+        console.log(field, piece)
+        console.log( "index: " + index	)
         let color = piece.pieceColor
         let directions = [7, 9, -7, -9]
         directions.forEach((direction) => {
@@ -277,7 +298,15 @@ export default function App() {
     const getQueenMoves = (piece, field) => {
 
         let legalMoves = []
-        let index = field.indexOf(piece)
+        let index = ""
+        // find index
+        field.forEach((field) => {
+            if(field.piece === piece) {
+                index = field.field
+            }
+        })
+
+
         let color = piece.pieceColor
         let directions = [1, -1, 8, -8, 7, 9, -7, -9]
 
@@ -302,7 +331,15 @@ export default function App() {
 
     const getKingMoves = (piece, field) => {
         let legalMoves = []
-        let index = field.indexOf(piece)
+        let index = ""
+        // find index
+        field.forEach((field) => {
+            if(field.piece === piece) {
+                index = field.field
+            }
+        })
+
+
         let color = piece.pieceColor
 
         let directions = [1, -1, 8, -8, 7, 9, -7, -9]
@@ -339,8 +376,6 @@ export default function App() {
         return checkMate
     }
 
-
-
     // promotion
     const isPromotion = (source, destination, sourcePiece, destinationPiece) => {
         return true;
@@ -348,7 +383,6 @@ export default function App() {
 
     const moveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
         let chessPiece = sourcePiece.slice(0, 1);
-        console.log(source, destination, sourcePiece, destinationPiece)
    
         // check if it was the players turn
         if (isLowerCase(chessPiece) && turn === 'w') return false;
@@ -383,17 +417,31 @@ export default function App() {
     }
 
     const returnNewData = (source, destination, sourcePiece) => {
-        return {
-        ...board,
-        lists: {
-            ...board.lists,
-            [source.droppableId]: '',
-            [destination.droppableId]: sourcePiece,
-        },
+
+        // return {
+        // ...board,
+        // lists: {
+        //     ...board.lists,
+        //     [source.droppableId]: '',
+        //     [destination.droppableId]: sourcePiece,
+        // },
+        // the above function seemed to be a problem so i want to reimplement it
+
+        let newLists = board.lists
+        newLists[source.droppableId] = ''
+        newLists[destination.droppableId] = sourcePiece
+
+        let newData = board
+        newData.lists = newLists
+        
+        return newData
+
+        // YAAAAA THIS SOLVED THE BUG
+
     };
      
     
-    }
+    
 
     const sendMoveToServer = (move) => {
 
@@ -404,15 +452,21 @@ export default function App() {
 
     let sourcePiece = board.lists[source.droppableId];
     let destinationPiece = board.lists[destination.droppableId];
+
+    if (sourcePiece === destinationPiece) return;
+
+    //console.log(source.droppableId, destination.droppableId, sourcePiece, destinationPiece)
     const newData = returnNewData(source, destination, sourcePiece);
     setNextBoard(newData);
         
     // Basic checks
-    if (!checkBasics(source, destination, sourcePiece, destinationPiece)) return;
+    if (!checkBasics(source, destination, sourcePiece)) return;
 
     // check if move is legal
-    if (!moveIsLegal(source, destination, sourcePiece, destinationPiece)) return;
+    //if (!moveIsLegal(source, destination, sourcePiece, destinationPiece)) return;
    
+
+
     // set new data
     setBoard(newData);
 
@@ -424,8 +478,39 @@ export default function App() {
         
   }
   
+  const drawDots = (legalMoves) => {
+    
+        let newLists = board.lists
+
+
+        console.log(legalMoves)
+
+
+        let newData = board
+        newData.lists = newLists
+        
+        return newData
+    }
+
+    const removeDots = () => {
+    }
+
+
+  const onDragPiece = (result) => {
+    const { source } = result;
+
+    let field = boardToField(board);
+
+    let sourcePiece = board.lists[source.droppableId];
+
+    drawDots(getLegalMoves(sourcePiece, field))
+    
+  }
+
+  
+
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragPiece} >
         <div className="column">
             {board.listOrder.map((liste, index) => {
                 return (
@@ -450,11 +535,12 @@ export default function App() {
                                     {  
                                         task !== undefined ?
                                         (
-                                        <Draggable draggableId={task.id} index={index} key={task.id}>
+                                        <Draggable draggableId={task.id} index={index} key={task.id} >
                                             {(provided, snapshot) => (
                                             <div
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
+                                                
                                                 ref={provided.innerRef}
                                                 className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
                                             >
