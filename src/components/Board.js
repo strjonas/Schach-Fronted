@@ -21,10 +21,13 @@ export default function App() {
     const [staleMate, setStaleMate] = useState(null)
     const [moveHistory, setMoveHistory] = useState([])
 
+    // damit man auf punkte zum moven drucken kann
+    const [currentPiece, setCurrentPiece] = useState([])
+
 
     const [render, rerender] = useState(false);
 
-
+    // diese funktion aus anderem file aufrufen klappt noch nicht, muss man sich was ueberlegen, useEffect
     function updateDataFromFenObject (obj){
         setBoard(arrayToData(obj.board, initialData))
         setTurn(obj.player)
@@ -38,17 +41,22 @@ export default function App() {
 
         let sourcePiece = board.lists[source.droppableId];
         let destinationPiece = board.lists[destination.droppableId];
+        
 
         if (sourcePiece === destinationPiece) return;
 
-        let newData = returnNewData(board, source, destination, sourcePiece);
+        let newData = returnNewData(JSON.parse(JSON.stringify(board)), source, destination, sourcePiece);
         setNextBoard(newData);
-            
-        // check if move is legal
-        if (!moveIsLegal(turn, board, nextBoard, rochade, source, destination, sourcePiece, destinationPiece)) return;
 
-        // remove the vali moves dots and set new data
+        // check if move is legal
+        if (!moveIsLegal(turn, board, nextBoard, rochade, source, destination, sourcePiece, destinationPiece)) 
+            return;
+
+        // remove the valid moves dots and set new data
         setBoard(removeDots(newData))
+
+        // refresh screen
+        rerender(!render);
 
         // send move to server in chess notation i.e. e2e4
         let move = source.droppableId + destination.droppableId	
@@ -99,14 +107,36 @@ export default function App() {
 
     }
 
-    const onClickPiece = (piece) => {
+    const moveCurrentPiece = (destination) => {
+
+        let piece = currentPiece[0]
+        let previousField = currentPiece[1]
+        let field = destination
+
+        let newLists = board.lists
+        newLists[previousField] = ''
+        newLists[field] = piece
+
+        let newData = board
+        newData.lists = newLists
 
 
-    let field = boardToField(removeDots(board));
+        setBoard(removeDots(newData))
 
-    setBoard(drawDots(getLegalMoves(piece, field)))
+        rerender(!render);
 
-    rerender(!render);
+    }
+
+
+    const onClickPiece = (piece, listId) => {
+
+        setCurrentPiece([piece, listId])
+
+        let field = boardToField(removeDots(board));
+
+        setBoard(drawDots(getLegalMoves(piece, field)))
+
+        rerender(!render);
 
     }
 
@@ -118,7 +148,6 @@ export default function App() {
 
                     <div className="row" key={liste[index]}> 
                         {liste.map((listId, index) => {
-                            
                             const list = board.lists[listId];
                             const task = board.tasks[list]
                             return (
@@ -137,7 +166,7 @@ export default function App() {
 
                                             task.id === 'dot' ?
                                             (
-                                                <div className="center">
+                                                <div onClick={() => moveCurrentPiece(listId)} className="center">
                                                     <div className="dot"></div>
                                                 </div>
                                             )
@@ -151,7 +180,7 @@ export default function App() {
                                                 ref={provided.innerRef}
                                                 className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
                                             >
-                                                <img onClick={() => onClickPiece(task.id)} src={require(`./../images/pieces/${task.id.slice(0, 1).toLowerCase()}_${task.color}.png`)} alt="piece" />
+                                                <img onClick={() => onClickPiece(task.id, listId)} src={require(`./../images/pieces/${task.id.slice(0, 1).toLowerCase()}_${task.color}.png`)} alt="piece" />
                                             </div>
                                             )}
                                         </Draggable>

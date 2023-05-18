@@ -1,8 +1,9 @@
 // import helper functions from utils/funcs.js
-import { isLowerCase, boardToField,  } from '../utils/funcs.js';
+import { isLowerCase, boardToField, indeciesToFields } from '../utils/funcs.js';
 import  getLegalMoves from './getMoves.js';
 
 export default function moveIsLegal  (turn, board, nextBoard, rochade, source, destination, sourcePiece, destinationPiece)  {
+
     let chessPiece = sourcePiece.slice(0, 1);
 
     // check basics
@@ -16,27 +17,39 @@ export default function moveIsLegal  (turn, board, nextBoard, rochade, source, d
     if (destinationPiece.length !== 0) {
         if (isLowerCase(sourcePiece) === isLowerCase(destinationPiece)) return false;
     }
-    
+
+
+    // check if the movement of the piece is legal
+    if (!moveIsLegalByPiece(board, destination, sourcePiece)) return false;
+
+
+    // check extra things for certain pieces
     switch (chessPiece.toUpperCase()) {
         case 'P':
+            // promotion? Passed pawn?
             return pawnMoveIsLegal(source, destination, sourcePiece, destinationPiece)
-        case 'R':
-            return rookMoveIsLegal(source, destination, sourcePiece, destinationPiece)
-        case 'N':
-            return knightMoveIsLegal(source, destination, sourcePiece, destinationPiece)
-        case 'B':
-            return bishopMoveIsLegal(source, destination, sourcePiece, destinationPiece)
-        case 'Q':
-            return queenMoveIsLegal(source, destination, sourcePiece, destinationPiece)
         case 'K':
+            // rochade? check? if in check, check if move removes check
             return kingMoveIsLegal(board, nextBoard, rochade, source, destination, sourcePiece, destinationPiece)
         default:
-            return false
+            // nothing special
+            return true
     }
 
-    // if in check, check if move removes check
-
 }
+
+const moveIsLegalByPiece = (board, destination, sourcePiece) => {
+    let move = destination.droppableId
+    let field = boardToField(board)
+
+    
+    let legalMoves = getLegalMoves(sourcePiece, field)
+
+    let fieldsInChessNotation = indeciesToFields(legalMoves)
+
+    return fieldsInChessNotation.includes(move)
+}
+
 
 const checkBasics = (source, destination, sourcePiece) => {
     // Basic checks
@@ -48,7 +61,6 @@ const checkBasics = (source, destination, sourcePiece) => {
     return !(destination.droppableId === source.droppableId &&
     destination.index === source.index);
 }
-
 
 const isCheckMate = (kingColor, field) => {
     let kingField = field.find((element) => element.piece === 'K' && element.pieceColor === kingColor).field
@@ -73,28 +85,12 @@ const isCheckMate = (kingColor, field) => {
 const isPromotion = (source, destination, sourcePiece, destinationPiece) => {
     return true;
 }
-const pawnMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-    return true;
-}
 
-const rookMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-    return true
-
-}
-
-const knightMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-
-    return true;
-}
-
-const bishopMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
+const pawnMoveIsLegal = (board, source, destination, sourcePiece, destinationPiece) => {
     return true;
 
 }
-const queenMoveIsLegal = (source, destination, sourcePiece, destinationPiece) => {
-    return true;
 
-}
 const kingMoveIsLegal = (board, nextBoard, rochade, source, destination, sourcePiece, destinationPiece) => {
     if(isKingInCheck(nextBoard, (isLowerCase(sourcePiece.slice(0, 1)) ? 'b' : 'w'))) return false;
     if (destination.droppableId === 'e8' && source.droppableId === 'h8' && rochade[0]) {

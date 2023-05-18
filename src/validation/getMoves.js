@@ -44,10 +44,16 @@ const getPawnMoves = (piece, field) => {
     let pawnMoves = [index + 8 * direction]
     // check if pawn is on starting position
     if (color === 'w' && index >= 48 && index <= 55) {
-        pawnMoves.push(index - 16)
+        // check if field is occupied
+        if (field[index-8].piece === '') {
+            pawnMoves.push(index - 16)
+        }
     } else if (color === 'b' && index >= 8 && index <= 15) {
-        pawnMoves.push(index + 16)
+        if (field[index+8].piece === '') {
+            pawnMoves.push(index + 16)
+        }
     }
+    console.log(legalMoves, index)
     pawnMoves.forEach((element) => {
         if (element >= 0 && element <= 63) {
             if (field[element].piece === '') {
@@ -83,7 +89,24 @@ const getRookMoves = (piece, field) => {
             } else {
                 break
             }
+            
+
+            // break if end of row or column is reached
+            if (i % 8 === 0 && direction === -1) {
+                break
+            }
+            else if (i % 8 === 7 && direction === 1) {
+                break
+            }
+            else if (i >= 56 && direction === 8) {
+                break
+            }
+            else if (i <= 7 && direction === -8) {
+                break
+            }
+
             i += direction
+            
         }
 
     })
@@ -106,8 +129,11 @@ const getKnightMoves = (piece, field) => {
     directions.forEach((direction) => {
         let i = index + direction
         if (i >= 0 && i <= 63) {
-            if (field[i].piece === '' || field[i].pieceColor !== color) {
-                legalMoves.push(field[i].field)
+            // check if knight would go out of bounds
+            if(Math.abs(i % 8 - index % 8) <= 2 && Math.abs(Math.floor(i / 8) - Math.floor(index / 8)) <= 2) {
+                if (field[i].piece === '' || field[i].pieceColor !== color) {
+                    legalMoves.push(field[i].field)
+                }
             }
         }
     })
@@ -126,8 +152,6 @@ const getBishopMoves = (piece, field) => {
     })
 
 
-    console.log(field, piece)
-    console.log( "index: " + index	)
     let color = piece.pieceColor
     let directions = [7, 9, -7, -9]
     directions.forEach((direction) => {
@@ -142,6 +166,21 @@ const getBishopMoves = (piece, field) => {
             } else {
                 break
             }
+
+            // break if end of row or column is reached
+            if (direction === 7 || direction === -9) {
+                if (i % 8 === 0) {
+                    break
+                }
+            }
+            else if (direction === 9 || direction === -7) {
+                if (i % 8 === 7) {
+                    break
+                }
+            }
+
+
+
             i += direction
         }
 
@@ -176,10 +215,37 @@ const getQueenMoves = (piece, field) => {
             } else {
                 break
             }
+            
+            // break if end of row or column is reached
+            if (i % 8 === 0 && direction === -1) {
+                break
+            }
+            else if (i % 8 === 7 && direction === 1) {
+                break
+            }
+            else if (i >= 56 && direction === 8) {
+                break
+            }
+            else if (i <= 7 && direction === -8) {
+                break
+            }
+            else if (direction === 7 || direction === -9) {
+                if (i % 8 === 0) {
+                    break
+                }
+            }
+            else if (direction === 9 || direction === -7) {
+                if (i % 8 === 7) {
+                    break
+                }
+            }
+
             i += direction
+
         }
 
     })
+    
     return legalMoves
 }
 
@@ -202,9 +268,11 @@ const getKingMoves = (piece, field) => {
     directions.forEach((direction) => {
         let i = index + direction
         if (i >= 0 && i <= 63) {
-            if (field[i].piece === '' || field[i].pieceColor !== color) {
-                legalMoves.push(field[i].field)
-            }
+
+                if (field[i].piece === '' || field[i].pieceColor !== color) {
+                    legalMoves.push(field[i].field)
+                }
+            
         }
     }
     )
