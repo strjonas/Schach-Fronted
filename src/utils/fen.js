@@ -1,10 +1,10 @@
-import {dataToArray} from "./functions.js";
-import {initialData} from "./data.js";
+import {dataToArray} from "./funcs.js";
+import {initialData} from "../components/initialData.js";
 
 let board = dataToArray(initialData)
 let fen = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1"   //example data
 
-function boardToFen(board) {
+export function boardToFen(board) {
     let result = "";
     for(let y = 0; y < board.length; y++)
     {
@@ -31,7 +31,7 @@ function boardToFen(board) {
     }
     return result;
 }
-function fenToBoard(fen) {
+export function fenToBoard(fen) {
     let fenArray = fenToArray(fen);
     let board = dataToArray(initialData);
     let i = 0;
@@ -45,7 +45,7 @@ function fenToBoard(fen) {
     }
     return board
 }
-function fenToArray(fen) {
+export function fenToArray(fen) {
     const fenString = fen.split(' ')[0].replace(/\//g, '');
     const fenArrayNums = fenString.split('');
     const fenArray = fenArrayNums.map(digit => {
@@ -56,7 +56,7 @@ function fenToArray(fen) {
     }).flat();
     return fenArray;
 }
-function evaluateFen(fen){
+export function evaluateFen(fen){
     let array = fen.split(' ')
     let obj = {
         board: fenToBoard(array[0]),
@@ -68,7 +68,7 @@ function evaluateFen(fen){
     }
     return obj
 }
-function evaluateCharade(charade){
+export function evaluateCharade(charade){
     let a = charade.split("")
     a.length = 4
     let charadeOutput = [false, false, false, false]
