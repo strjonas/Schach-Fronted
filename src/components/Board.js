@@ -19,6 +19,8 @@ export default function App() {
     const [moveHistory, setMoveHistory] = useState([])
 
 
+    const [render, rerender] = useState(false);
+
   function isLowerCase(str)
     {
         return str === str.toLowerCase() && str !== str.toUpperCase();
@@ -80,6 +82,24 @@ export default function App() {
             }
         })
         return field
+    }
+
+    const fieldToBoard = (field) => {
+        let board = [[], [], [], [], [], [], [], []]
+        field.forEach((element) => {
+            board[Math.floor(element.field / 8)].push(element.piece)
+        })
+        return board
+    }
+
+    const indeciesToFields = (indecies) => {
+        let fields = []
+        indecies.forEach((element) => {
+            let row = Math.floor(element / 8)
+            let column = element % 8
+            fields.push(String.fromCharCode(97 + column) + (8 - row))
+        })
+        return fields
     }
 
     // implementiert elias noch
@@ -456,7 +476,7 @@ export default function App() {
     if (sourcePiece === destinationPiece) return;
 
     //console.log(source.droppableId, destination.droppableId, sourcePiece, destinationPiece)
-    const newData = returnNewData(source, destination, sourcePiece);
+    let newData = returnNewData(source, destination, sourcePiece);
     setNextBoard(newData);
         
     // Basic checks
@@ -464,11 +484,10 @@ export default function App() {
 
     // check if move is legal
     //if (!moveIsLegal(source, destination, sourcePiece, destinationPiece)) return;
-   
+    
 
-
-    // set new data
-    setBoard(newData);
+    // remove the vali moves dots and set new data
+    setBoard(removeDots(newData))
 
     // send move to server in chess notation i.e. e2e4
     let move = source.droppableId + destination.droppableId	
@@ -483,7 +502,11 @@ export default function App() {
         let newLists = board.lists
 
 
-        console.log(legalMoves)
+
+        indeciesToFields(legalMoves).forEach((element) => {
+            if(newLists[element] === '')
+                newLists[element] = 'dot'
+        })
 
 
         let newData = board
@@ -492,18 +515,43 @@ export default function App() {
         return newData
     }
 
-    const removeDots = () => {
+    const removeDots = (newBoard) => {
+        let newLists = newBoard.lists
+
+        initialData.listOrder.flat().forEach((element) => {
+            if(newLists[element] === 'dot')
+                newLists[element] = ''
+        })
+
+
+        let newData = board
+        newData.lists = newLists
+
+        return newData
     }
 
 
   const onDragPiece = (result) => {
-    const { source } = result;
+    // const { source } = result;
 
-    let field = boardToField(board);
+    // let field = boardToField(board);
 
-    let sourcePiece = board.lists[source.droppableId];
+    // let sourcePiece = board.lists[source.droppableId];
 
-    drawDots(getLegalMoves(sourcePiece, field))
+    // setBoard(drawDots(getLegalMoves(sourcePiece, field)))
+    setBoard(removeDots(board))
+    rerender(!render);
+    
+  }
+
+  const onClickPiece = (piece) => {
+
+
+    let field = boardToField(removeDots(board));
+
+    setBoard(drawDots(getLegalMoves(piece, field)))
+    
+    rerender(!render);
     
   }
 
@@ -521,7 +569,7 @@ export default function App() {
                             const list = board.lists[listId];
 
                             const task = board.tasks[list]
-
+                            console.log(task)
                             return (
                                 <Droppable droppableId={listId} key={listId}>
                                     {(provided, snapshot) => (
@@ -535,6 +583,14 @@ export default function App() {
                                     {  
                                         task !== undefined ?
                                         (
+
+                                            task.id === 'dot' ?
+                                            (
+                                                <div className="center">
+                                                  <div className="dot"></div>
+                                                </div>
+                                            )
+                                            :
                                         <Draggable draggableId={task.id} index={index} key={task.id} >
                                             {(provided, snapshot) => (
                                             <div
@@ -544,14 +600,14 @@ export default function App() {
                                                 ref={provided.innerRef}
                                                 className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
                                             >
-                                                <img src={require(`./../images/pieces/${task.id.slice(0, 1).toLowerCase()}_${task.color}.png`)} alt="piece" />
+                                                <img onClick={() => onClickPiece(task.id)} src={require(`./../images/pieces/${task.id.slice(0, 1).toLowerCase()}_${task.color}.png`)} alt="piece" />
                                             </div>
                                             )}
                                         </Draggable>
                                         )
                                         :
                                         (
-                                            <div  className="piece, dummy"></div>
+                                            <div onClick={() => {setBoard(removeDots(board));rerender(!render);}} className="dummy"></div>
                                         )
                                     }
                                         {provided.placeholder}
