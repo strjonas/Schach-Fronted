@@ -1,8 +1,6 @@
 import {dataToArray} from "./funcs.js";
 import {initialData} from "../components/initialData.js";
 
-let board = dataToArray(initialData)
-let fen = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1"   //example data
 
 export function boardToFen(board) {
     let result = "";
@@ -68,7 +66,7 @@ export function evaluateFen(fen){
     }
     return obj
 }
-export function evaluateCharade(charade){
+function evaluateCharade(charade){
     let a = charade.split("")
     a.length = 4
     let charadeOutput = [false, false, false, false]

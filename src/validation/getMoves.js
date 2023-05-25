@@ -1,6 +1,7 @@
 
 
 export default function getLegalMoves (piece, field) {
+    
     let legalMoves = []
     switch (piece.slice(0, 1).toUpperCase()) {
         case 'P':
@@ -40,20 +41,19 @@ const getPawnMoves = (piece, field) => {
     })
 
     let color = field[index].pieceColor
-    let direction = color === 'w' ? -1 : 1
+    let direction = color === 'b' ? -1 : 1
     let pawnMoves = [index + 8 * direction]
     // check if pawn is on starting position
-    if (color === 'w' && index >= 48 && index <= 55) {
+    if (color === 'b' && index >= 48 && index <= 55) {
         // check if field is occupied
         if (field[index-8].piece === '') {
             pawnMoves.push(index - 16)
         }
-    } else if (color === 'b' && index >= 8 && index <= 15) {
+    } else if (color === 'w' && index >= 8 && index <= 15) {
         if (field[index+8].piece === '') {
             pawnMoves.push(index + 16)
         }
     }
-    console.log(legalMoves, index)
     pawnMoves.forEach((element) => {
         if (element >= 0 && element <= 63) {
             if (field[element].piece === '') {
