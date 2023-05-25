@@ -1,33 +1,48 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import WebSocket from 'react-websocket';
 
 
 export default function Server() {
-    const socketRef = useRef(null);
 
-  useEffect(() => {
-    socketRef.current = io('ws://localhost:8080'); // Replace with your server URL
+    let refWebSocket = useRef(null);
 
-    socketRef.current.on('connect', () => {
-      console.log('Connected to the server');
-      socketRef.current.emit('subscribe', '/topic/greetings'); // Replace 'channel1' with the desired channel name
-    });
+ function handleData(data) {
+    console.log('Received:', data);
+  }
 
-    socketRef.current.on('message', (channel, message) => {
-      console.log(`Received message on channel ${channel}:`, message);
-    });
+  function handleOpen() {
+    console.log('WebSocket connection established');
+    
+    sendMessage('Hello, WebSocket server!');
+  }
 
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
+  function handleClose() {
+    console.log('WebSocket connection closed');
+  }
 
-  const handleClick = () => {
-    socketRef.current.emit('message', '/app/hello', 'Hello from the client!'); // Replace 'channel1' with the desired channel name
-  };
+  function sendMessage(message) {
+    refWebSocket.sendMessage(message);
+  }
 
-  return (
-    <div><button onClick={handleClick}>Send Hello</button>Server</div>
-  )
+  
+    return (
+        
+      <div>
+        <div></div>
+        <button onClick={() => sendMessage("e2e4")}></button>
+        <WebSocket
+          url="ws://localhost:8080/websocket"
+          onMessage={handleData}
+          onOpen={handleOpen}
+          onClose={handleClose}
+          reconnect={true}
+          debug={true}
+          ref={(ref) => (refWebSocket = ref)}
+        />
+      </div>
+    );
+  
+
 }
