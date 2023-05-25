@@ -33,6 +33,7 @@ export const initialData = {
     'B2': { id: 'B2', color: 'white', content: 'Bishop 2' },
     'Q1': { id: 'Q1', color: 'white', content: 'Queen 1' },
     'K1': { id: 'K1', color: 'white', content: 'King 1' },
+    'dot': { id: 'dot', color: 'dot', content: 'dot' },
 
   },
   lists: {
