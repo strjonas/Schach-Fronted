@@ -32,8 +32,9 @@ export default function App() {
 
     function updateDataFromFenObject (obj){
         console.log(board)
-
-        setBoard(arrayToData(numbersToPieces(obj.board), initialData))
+        let a = numbersToPieces(obj.board)
+        let b = arrayToData(a, initialData)
+        setBoard(b)
         setTurn(obj.player)
         setRochade(obj.rochade)
         setEnPassant(obj.enPassant)
@@ -47,6 +48,7 @@ export default function App() {
         if(msg.includes('fen')){
 
             let o = evaluateFen(msg.slice(5));
+            console.log(o)
             updateDataFromFenObject(o)
         }
         
@@ -63,7 +65,7 @@ export default function App() {
 
         let sourcePiece = board.lists[source.droppableId];
         let destinationPiece = board.lists[destination.droppableId];
-        
+        console.log(destination, source)
 
         if (sourcePiece === destinationPiece) return;
 
@@ -162,6 +164,8 @@ export default function App() {
 
     }
 
+  
+
     return (
     <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragPiece} >
         <WebSocket
@@ -176,7 +180,7 @@ export default function App() {
         <div className="column">
             {board.listOrder.map((liste, index) => {
                 return (
-
+                    
                     <div className="row" key={liste[index]}> 
                         {liste.map((listId, index) => {
                             const list = board.lists[listId];
