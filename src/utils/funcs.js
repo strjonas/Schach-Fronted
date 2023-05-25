@@ -15,6 +15,23 @@ export function dataToArray  (data) {
     return array
 }
 
+export function numbersToPieces  (array)  {
+    let newArray = []
+    array.forEach(element => {
+        let newElement = []
+        element.forEach(element2 => {
+            // since in the original, each peace of the same kind has a unique number, i.e. R1, R2 then r1, r2, p1, p2, etc.
+            // we need to make sure that we add numbers again, since the original data does not have them
+            let counts = {'p': 1, 'P': 1, 'r': 1, 'R': 1, 'n': 1, 'N': 1, 'b': 1, 'B': 1, 'q': 1, 'Q': 1, 'k': 1, 'K': 1}
+            newElement.push(element2 + counts[element2])
+            counts[element2]++
+
+        });
+        newArray.push(newElement)
+    });
+    return newArray
+}
+
 export function  arrayToData  (array, data)  {
     let newData = {
         ...data,
@@ -26,12 +43,10 @@ export function  arrayToData  (array, data)  {
     let columns = "abcdefgh".split("")
     rows.forEach(element => {
         columns.forEach(element2 => {
-            //console.log(array[Number(element)][columns.indexOf(element2)], element2 + element)
-            newData.lists[element2 + element] = array[Number(element)][columns.indexOf(element2)]
+            newData.lists[element2 + element] = array[Number(element)-1][columns.indexOf(element2)]
         });
 
     });
-
     return newData
 }
 
@@ -47,7 +62,7 @@ export function  boardToField  (board) {
         })
     })
     let field = fieldFull.map((element, index) => {
-        if (element.length === 0) return {
+        if (element.length === 1) return {
             field: index,
             piece: '',
             pieceColor: ''
@@ -55,7 +70,7 @@ export function  boardToField  (board) {
         return {
             field: index,
             piece: element,
-            pieceColor: isLowerCase(element.slice(0, 1)) ? 'b' : 'w'
+            pieceColor: isLowerCase(element.slice(1, 1)) ? 'b' : 'w'
         }
     })
     return field

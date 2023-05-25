@@ -1,21 +1,20 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import io from 'socket.io-client';
 import WebSocket from 'react-websocket';
 
 
-export default function Server() {
+export default function Server({onMessage, refWebSocket}) {
 
-    let refWebSocket = useRef(null);
+    //let refWebSocket = useRef(null);
 
  function handleData(data) {
+    onMessage(data);
     console.log('Received:', data);
   }
 
   function handleOpen() {
     console.log('WebSocket connection established');
     
-    sendMessage('Hello, WebSocket server!');
   }
 
   function handleClose() {
@@ -30,17 +29,7 @@ export default function Server() {
     return (
         
       <div>
-        <div></div>
-        <button onClick={() => sendMessage("e2e4")}></button>
-        <WebSocket
-          url="ws://localhost:8080/websocket"
-          onMessage={handleData}
-          onOpen={handleOpen}
-          onClose={handleClose}
-          reconnect={true}
-          debug={true}
-          ref={(ref) => (refWebSocket = ref)}
-        />
+
       </div>
     );
   

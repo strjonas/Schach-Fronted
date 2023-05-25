@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { initialData } from './initialData.js';
 import '../styles/App.css';
 import getLegalMoves  from '../validation/getMoves.js';
 import moveIsLegal from '../validation/isMoveLegal.js';
-import { indeciesToFields,  boardToField, returnNewData, arrayToData } from '../utils/funcs.js';
-import { sendMoveToServer } from '../server/handling.js';
-
+import { indeciesToFields,  boardToField, returnNewData, arrayToData, dataToArray,numbersToPieces } from '../utils/funcs.js';
+import { evaluateFen } from '../utils/fen.js';
+import WebSocket from 'react-websocket';
 
 export default function App() {
+    let refWebSocket = useRef(null);
+
     const [board, setBoard] = useState(initialData);
     const [nextBoard, setNextBoard] = useState(initialData);
     const [turn, setTurn] = useState('w')
@@ -27,14 +29,34 @@ export default function App() {
 
     const [render, rerender] = useState(false);
 
-    // diese funktion aus anderem file aufrufen klappt noch nicht, muss man sich was ueberlegen, useEffect
+
     function updateDataFromFenObject (obj){
-        setBoard(arrayToData(obj.board, initialData))
+        console.log(board)
+
+        setBoard(arrayToData(numbersToPieces(obj.board), initialData))
         setTurn(obj.player)
         setRochade(obj.rochade)
         setEnPassant(obj.enPassant)
-
+        
+        console.log(board)
     }
+
+
+    function onMessage(data){
+        let msg = data.toString()
+        if(msg.includes('fen')){
+
+            let o = evaluateFen(msg.slice(5));
+            updateDataFromFenObject(o)
+        }
+        
+        
+    }
+
+    function sendMessage(message) {
+        refWebSocket.sendMessage(message);
+    }
+
 
     const onDragEnd = (result) => {
         const { destination, source } = result;
@@ -60,7 +82,7 @@ export default function App() {
 
         // send move to server in chess notation i.e. e2e4
         let move = source.droppableId + destination.droppableId	
-        sendMoveToServer(move);
+        sendMessage(move);
         // update move history
         setMoveHistory([...moveHistory, move]);
             
@@ -142,6 +164,15 @@ export default function App() {
 
     return (
     <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragPiece} >
+        <WebSocket
+          url="ws://localhost:8080/websocket"
+          onMessage={onMessage}
+          onOpen={() => { console.log('connected');} }
+          onClose={() => { console.log('disconnected'); }}
+          reconnect={true}
+          debug={true}
+          ref={(ref) => (refWebSocket = ref)}
+        />
         <div className="column">
             {board.listOrder.map((liste, index) => {
                 return (
@@ -171,19 +202,19 @@ export default function App() {
                                                 </div>
                                             )
                                             :
-                                        <Draggable draggableId={task.id} index={index} key={task.id} >
-                                            {(provided, snapshot) => (
-                                            <div
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                
-                                                ref={provided.innerRef}
-                                                className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
-                                            >
-                                                <img onClick={() => onClickPiece(task.id, listId)} src={require(`./../images/pieces/${task.id.slice(0, 1).toLowerCase()}_${task.color}.png`)} alt="piece" />
-                                            </div>
-                                            )}
-                                        </Draggable>
+                                            <Draggable draggableId={task.id} index={index} key={task.id} >
+                                                {(provided, snapshot) => (
+                                                <div
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    
+                                                    ref={provided.innerRef}
+                                                    className={`task ${snapshot.isDragging ? 'dragging' : ''}, piece, ${task.color}`}
+                                                >
+                                                    <img onClick={() => onClickPiece(task.id, listId)} src={require(`./../images/pieces/${task.id.slice(0, 1).toLowerCase()}_${task.color}.png`)} alt="piece" />
+                                                </div>
+                                                )}
+                                            </Draggable>
                                         )
                                         :
                                         (

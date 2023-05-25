@@ -53,7 +53,6 @@ const getPawnMoves = (piece, field) => {
             pawnMoves.push(index + 16)
         }
     }
-    console.log(legalMoves, index)
     pawnMoves.forEach((element) => {
         if (element >= 0 && element <= 63) {
             if (field[element].piece === '') {
