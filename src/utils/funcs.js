@@ -12,7 +12,6 @@ export function dataToArray  (data) {
             array[Number(element)-1].push(data.lists[element2 + element])
         });
     });
-    console.log(array)
     return array
 }
 
@@ -40,8 +39,6 @@ export function numbersToPieces  (array)  {
 }
 
 export function  arrayToData  (array, data)  {
-    console.log(data.lists)
-    console.log(array)
     let newData = {
         ...data,
         lists: {
@@ -59,7 +56,6 @@ export function  arrayToData  (array, data)  {
     });
 
 
-    console.log(newData.lists)
     return newData
 }
 

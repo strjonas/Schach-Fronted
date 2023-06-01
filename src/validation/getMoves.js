@@ -262,15 +262,19 @@ const getKingMoves = (piece, field) => {
     }
     )
 
-
-    let color = piece.pieceColor
+    let color = field[index].pieceColor
     let directions = [1, -1, 8, -8, 7, 9, -7, -9]
     directions.forEach((direction) => {
         let i = index + direction
         if (i >= 0 && i <= 63) {
 
                 if (field[i].piece === '' || field[i].pieceColor !== color) {
-                    legalMoves.push(field[i].field)
+                    // check if the king would be in check on this field
+                    if (!isCheck(field, field[i].field, color)) {
+
+                        legalMoves.push(field[i].field)
+
+                    }
                 }
             
         }
@@ -278,4 +282,16 @@ const getKingMoves = (piece, field) => {
     )
     return legalMoves
 
+}
+
+const isCheck = (field, kingField, kingColor) => {
+    let enemyColor = kingColor === 'w' ? 'b' : 'w'
+    let enemyMoves = []
+    field.forEach((element) => {
+        if (element.pieceColor === enemyColor && element.piece.slice(0,1).toUpperCase() !== 'K') {
+            //console.log(element.piece)
+            enemyMoves.push(...getLegalMoves(element.piece, field))
+        }
+    })
+    return enemyMoves.includes(kingField)
 }

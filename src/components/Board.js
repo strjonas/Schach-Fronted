@@ -6,10 +6,13 @@ import getLegalMoves  from '../validation/getMoves.js';
 import moveIsLegal from '../validation/isMoveLegal.js';
 import { indeciesToFields,  boardToField, returnNewData, arrayToData, dataToArray,numbersToPieces } from '../utils/funcs.js';
 import { evaluateFen } from '../utils/fen.js';
+import GameFinishedScreen from './GameFinishedScreen.js';
 import WebSocket from 'react-websocket';
 
 export default function App() {
     let refWebSocket = useRef(null);
+
+    const [gameState, setgameState] = useState("notStarted")
 
     const [board, setBoard] = useState(initialData);
     const [nextBoard, setNextBoard] = useState(initialData);
@@ -31,7 +34,6 @@ export default function App() {
 
 
     function updateDataFromFenObject (obj){
-        console.log(board)
         let a = numbersToPieces(obj.board)
         let b = arrayToData(a, initialData)
         setBoard(b)
@@ -39,19 +41,32 @@ export default function App() {
         setRochade(obj.rochade)
         setEnPassant(obj.enPassant)
         
-        console.log(board)
     }
 
 
     function onMessage(data){
         let msg = data.toString()
+        console.log(msg);
         if(msg.includes('fen')){
 
             let o = evaluateFen(msg.slice(5));
-            console.log(o)
             updateDataFromFenObject(o)
         }
-        
+        else if(msg.includes('end')){
+            if(msg.includes('draw')){
+                setgameState('draw')
+            }
+            else if(msg.includes('w')){
+                setgameState('white')
+            }
+            else if(msg.includes('b')){
+                setgameState('black')
+            }
+        }
+        // things that i need from the server
+        // if the game ends, end <state> is sent, <state> can be draw, white, black
+        // if a move is made, fen <fen> is sent, <fen> is the fen notation of the board
+
         
     }
 
@@ -65,7 +80,6 @@ export default function App() {
 
         let sourcePiece = board.lists[source.droppableId];
         let destinationPiece = board.lists[destination.droppableId];
-        console.log(destination, source)
 
         if (sourcePiece === destinationPiece) return;
 
@@ -73,8 +87,7 @@ export default function App() {
         setNextBoard(newData);
 
         // check if move is legal
-        if (!moveIsLegal(turn, board, nextBoard, rochade, source, destination, sourcePiece, destinationPiece)) 
-            return;
+        // if (!moveIsLegal(turn, board, nextBoard, rochade, source, destination, sourcePiece, destinationPiece)) return;
 
         // remove the valid moves dots and set new data
         setBoard(removeDots(newData))
@@ -84,7 +97,7 @@ export default function App() {
 
         // send move to server in chess notation i.e. e2e4
         let move = source.droppableId + destination.droppableId	
-        sendMessage(move);
+        sendMessage("move " + move);
         // update move history
         setMoveHistory([...moveHistory, move]);
             
@@ -147,6 +160,12 @@ export default function App() {
 
         setBoard(removeDots(newData))
 
+        // send move to server in chess notation i.e. e2e4
+        let move = previousField + field
+        sendMessage("move " + move);
+        // update move history
+        setMoveHistory([...moveHistory, move]);
+
         rerender(!render);
 
     }
@@ -164,24 +183,35 @@ export default function App() {
 
     }
 
-  
+    function updateGameStateFromMenu(state){
+        setgameState(state)
+        // do required stuff based on the state
+    }
 
     return (
     <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragPiece} >
         <WebSocket
           url="ws://localhost:8080/websocket"
           onMessage={onMessage}
-          onOpen={() => { console.log('connected');} }
+          onOpen={() => { console.log('connected'); setgameState("isStarted")} }
           onClose={() => { console.log('disconnected'); }}
           reconnect={true}
           debug={true}
           ref={(ref) => (refWebSocket = ref)}
         />
         <div className="column">
-            {board.listOrder.map((liste, index) => {
+            {
+                gameState !== "isStarted"  && 
+                (
+                <div className="gameFinishedContainer">
+                    <GameFinishedScreen gameState={gameState} update={updateGameStateFromMenu}/>
+                </div>
+                )
+            }
+            {board.listOrder.map((liste, index1) => {
                 return (
                     
-                    <div className="row" key={liste[index]}> 
+                    <div className="row" key={liste[index1]}> 
                         {liste.map((listId, index) => {
                             const list = board.lists[listId];
                             const task = board.tasks[list]
@@ -193,6 +223,7 @@ export default function App() {
                                         {...provided.droppableProps}
                                         ref={provided.innerRef}
                                         className={`list ${snapshot.isDraggingOver ? 'dragging-over' : ''}, field`}
+                                        style={{backgroundColor: (index1 + index) % 2 === 0 ? '#f0d9b5' : '#b58863'}}
                                     >
                                         
                                     {  
